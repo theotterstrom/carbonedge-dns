@@ -707,57 +707,64 @@ export default function DnsAdminKontrollpanel(){
           </main>
         </div>
 
-        <Sheet open={openRecordSheet} onOpenChange={setOpenRecordSheet}>
-          <SheetContent side="right" className="w-full sm:max-w-md bg-[#0c0f14] text-white border-white/5">
-            <SheetHeader>
-              <SheetTitle>{editRecord?"Redigera post":"Ny DNS-post"}</SheetTitle>
-              <SheetDescription className="text-white/60">Stöd för A, AAAA, CNAME, TXT, MX, NS, CAA, SRV, PTR.</SheetDescription>
-            </SheetHeader>
-            <div className="mt-4"><RecordForm initial={editRecord?editRecord:undefined} onSubmit={upsertRecord} onCancel={function(){ setEditRecord(null); setOpenRecordSheet(false); }}/></div>
-          </SheetContent>
-        </Sheet>
+        {openRecordSheet && (
+          <Sheet open={openRecordSheet} onOpenChange={setOpenRecordSheet}>
+            <SheetContent side="right" className="w-full sm:max-w-md bg-[#0c0f14] text-white border-white/5">
+              <SheetHeader>
+                <SheetTitle>{editRecord?"Redigera post":"Ny DNS-post"}</SheetTitle>
+                <SheetDescription className="text-white/60">Stöd för A, AAAA, CNAME, TXT, MX, NS, CAA, SRV, PTR.</SheetDescription>
+              </SheetHeader>
+              <div className="mt-4"><RecordForm initial={editRecord?editRecord:undefined} onSubmit={upsertRecord} onCancel={function(){ setEditRecord(null); setOpenRecordSheet(false); }}/></div>
+            </SheetContent>
+          </Sheet>
+        )}
 
-        <Dialog open={openZoneDialog} onOpenChange={setOpenZoneDialog}>
-          <DialogContent className="bg-[#0c0f14] text-white border-white/5">
-            <DialogHeader>
-              <DialogTitle>Importera zonfil</DialogTitle>
-              <DialogDescription className="text-white/60">Klistra in radvis: <Kbd>TYPE</Kbd> <Kbd>NAME</Kbd> <Kbd>VALUE</Kbd> <Kbd>TTL</Kbd> [<Kbd>PRIO</Kbd>]</DialogDescription>
-            </DialogHeader>
-            <Textarea value={zoneText} onChange={function(e){ setZoneText(e.target.value); }} placeholder={"A @ 203.0.113.10 3600\nCNAME www @ 300\nMX @ mail.example.se 14400 10"} className="min-h-[200px] bg-[#16181f] border-white/10 text-white"/>
-            <DialogFooter className="gap-2">
-              <Button variant="ghost" onClick={function(){ setOpenZoneDialog(false); }} className="text-white/80">Avbryt</Button>
-              <Guard cap="records"><Button onClick={function(){ importZone(); }} className="bg-[#1f2937] hover:bg-[#2a3442] text-white"><Upload className="w-4 h-4 mr-2"/> Importera</Button></Guard>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {openZoneDialog && (
+          <Dialog open={openZoneDialog} onOpenChange={setOpenZoneDialog}>
+            <DialogContent className="bg-[#0c0f14] text-white border-white/5">
+              <DialogHeader>
+                <DialogTitle>Importera zonfil</DialogTitle>
+                <DialogDescription className="text-white/60">Klistra in radvis: <Kbd>TYPE</Kbd> <Kbd>NAME</Kbd> <Kbd>VALUE</Kbd> <Kbd>TTL</Kbd> [<Kbd>PRIO</Kbd>]</DialogDescription>
+              </DialogHeader>
+              <Textarea value={zoneText} onChange={function(e){ setZoneText(e.target.value); }} placeholder={"A @ 203.0.113.10 3600\nCNAME www @ 300\nMX @ mail.example.se 14400 10"} className="min-h-[200px] bg-[#16181f] border-white/10 text-white"/>
+              <DialogFooter className="gap-2">
+                <Button variant="ghost" onClick={function(){ setOpenZoneDialog(false); }} className="text-white/80">Avbryt</Button>
+                <Guard cap="records"><Button onClick={function(){ importZone(); }} className="bg-[#1f2937] hover:bg-[#2a3442] text-white"><Upload className="w-4 h-4 mr-2"/> Importera</Button></Guard>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
 
-        <Sheet open={changesetOpen} onOpenChange={setChangesetOpen}>
-          <SheetContent side="right" className="w-full sm:max-w-md bg-[#0c0f14] text-white border-white/5">
-            <SheetHeader>
-              <SheetTitle>Ändringar</SheetTitle>
-              <SheetDescription className="text-white/60">Granska innan publicering</SheetDescription>
-            </SheetHeader>
-            <div className="mt-4 space-y-2 max-h-[75vh] overflow-auto pr-1">
-              {pendingOps.length===0 ? <div className="text-white/50">Inga väntande ändringar.</div> : null}
-              {pendingOps.map(function(op){ return (
-                <div key={op.id} className="rounded-lg border border-white/10 p-3">
-                  <div className="text-xs uppercase tracking-wide text-white/50 mb-1">{op.op}</div>
-                  <div className="text-white/80 text-sm flex flex-wrap gap-x-3 gap-y-1">
-                    <span className="font-mono">{op.record.type}</span>
-                    <span className="font-mono">{op.record.name}</span>
-                    <span className="font-mono">{op.record.value}</span>
-                    {typeof op.record.priority!=="undefined" ? <span className="font-mono">prio:{op.record.priority}</span> : null}
-                    <span className="font-mono">ttl:{op.record.ttl}</span>
+        {changesetOpen && (
+          <Sheet open={changesetOpen} onOpenChange={setChangesetOpen}>
+            <SheetContent side="right" className="w-full sm:max-w-md bg-[#0c0f14] text-white border-white/5">
+              <SheetHeader>
+                <SheetTitle>Ändringar</SheetTitle>
+                <SheetDescription className="text-white/60">Granska innan publicering</SheetDescription>
+              </SheetHeader>
+              <div className="mt-4 space-y-2 max-h-[75vh] overflow-auto pr-1">
+                {pendingOps.length===0 ? <div className="text-white/50">Inga väntande ändringar.</div> : null}
+                {pendingOps.map(function(op){ return (
+                  <div key={op.id} className="rounded-lg border border-white/10 p-3">
+                    <div className="text-xs uppercase tracking-wide text-white/50 mb-1">{op.op}</div>
+                    <div className="text-white/80 text-sm flex flex-wrap gap-x-3 gap-y-1">
+                      <span className="font-mono">{op.record.type}</span>
+                      <span className="font-mono">{op.record.name}</span>
+                      <span className="font-mono">{op.record.value}</span>
+                      {typeof op.record.priority!=="undefined" ? <span className="font-mono">prio:{op.record.priority}</span> : null}
+                      <span className="font-mono">ttl:{op.record.ttl}</span>
+                    </div>
                   </div>
-                </div>
-              ); })}
-            </div>
-            <div className="mt-4 flex justify-between gap-2">
-              <Button variant="outline" className="border-white/20 text-white/80 bg-transparent hover:bg-white/10" onClick={clearChanges} disabled={pendingOps.length===0}>Rensa</Button>
-              <Guard cap="publish"><Button className="bg-emerald-700/70 hover:bg-emerald-700 text-white" onClick={applyChanges} disabled={pendingOps.length===0}><CheckCircle2 className="w-4 h-4 mr-2"/>Publicera</Button></Guard>
-            </div>
-          </SheetContent>
-        </Sheet>
+                ); })}
+              </div>
+              <div className="mt-4 flex justify-between gap-2">
+                <Button variant="outline" className="border-white/20 text-white/80 bg-transparent hover:bg-white/10" onClick={clearChanges} disabled={pendingOps.length===0}>Rensa</Button>
+                <Guard cap="publish"><Button className="bg-emerald-700/70 hover:bg-emerald-700 text-white" onClick={applyChanges} disabled={pendingOps.length===0}><CheckCircle2 className="w-4 h-4 mr-2"/>Publicera</Button></Guard>
+              </div>
+            </SheetContent>
+            <button onClick={() => setChangesetOpen(false)}> Close </button>
+          </Sheet>
+        )}
 
         <footer className="py-6 text-center text-xs text-white/40">Byggd som exempel · Mörk grafit/Carbon-lik portal · React + Tailwind + shadcn/ui · API-integrerad & rollstyrd</footer>
       </div>
